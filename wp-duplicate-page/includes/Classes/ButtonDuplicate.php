@@ -4,6 +4,7 @@ namespace NjtDuplicate\Classes;
 defined( 'ABSPATH' ) || exit;
 use NjtDuplicate\Helper\Utils;
 use NjtDuplicate\Classes\CreateDuplicate;
+
 class ButtonDuplicate {
 	protected static $instance = null;
 
@@ -26,8 +27,18 @@ class ButtonDuplicate {
 		add_filter( 'post_row_actions', array( $this, 'duplicateButtonLink' ), 10, 2 );
 		add_filter( 'page_row_actions', array( $this, 'duplicateButtonLink' ), 10, 2 );
 		foreach ( $duplicatePostTypes as $key => $value ) {
-			add_filter( "bulk_actions-edit-{$value}", array( $this, 'duplicateBulkLink' ), 100, 1 );
-			add_filter( "handle_bulk_actions-edit-{$value}", array( $this, 'duplicateBulkHandle' ), 100, 3 );
+			if ( 'shop_order' === $value ) {
+				if ( class_exists( '\Automattic\WooCommerce\Utilities\OrderUtil' ) && \Automattic\WooCommerce\Utilities\OrderUtil::custom_orders_table_usage_is_enabled() ) {
+					add_filter( 'bulk_actions-woocommerce_page_wc-orders', array( $this, 'duplicateBulkLink' ), 100, 1 );
+					add_filter( 'handle_bulk_actions-woocommerce_page_wc-orders', array( $this, 'duplicateBulkHandleHPOS' ), 100, 3 );
+				} else {
+					add_filter( "bulk_actions-edit-{$value}", array( $this, 'duplicateBulkLink' ), 100, 1 );
+					add_filter( "handle_bulk_actions-edit-{$value}", array( $this, 'duplicateBulkHandle' ), 100, 3 );
+				}
+			} else {
+				add_filter( "bulk_actions-edit-{$value}", array( $this, 'duplicateBulkLink' ), 100, 1 );
+				add_filter( "handle_bulk_actions-edit-{$value}", array( $this, 'duplicateBulkHandle' ), 100, 3 );
+			}
 		}
 
 	}
@@ -56,6 +67,26 @@ class ButtonDuplicate {
 
 					} else {
 						wp_die( esc_html__( 'Copy creation failed, could not find original:', 'wp-duplicate-page' ) . ' ' . htmlspecialchars( $postId ) );
+					}
+				}
+			}
+			return add_query_arg( 'bulk_cloned', $counter, $redirect );
+		}
+		return $redirect;
+	}
+
+	public function duplicateBulkHandleHPOS( $redirect, $action, $ids ) {
+		if ( 'wp_duplicate_page_bulk_action' === $action ) {
+			$counter = 0;
+			if ( is_array( $ids ) ) {
+				foreach ( $ids as $orderId ) {
+					$order = wc_get_order( $orderId );
+					if ( ! empty( $order ) ) {
+						$createDuplicate = CreateDuplicate::getInstance();
+						$newOrderId      = $createDuplicate->createDuplicateOrderHPOS( $order );
+						++$counter;
+					} else {
+						wp_die( esc_html__( 'Copy creation failed, could not find original:', 'wp-duplicate-page' ) . ' ' . htmlspecialchars( $orderId ) );
 					}
 				}
 			}
@@ -150,5 +181,4 @@ class ButtonDuplicate {
 			wp_die( esc_html__( 'Copy creation failed, could not find original:', 'wp-duplicate-page' ) . ' ' . htmlspecialchars( $postId ) );
 		}
 	}
-
 }

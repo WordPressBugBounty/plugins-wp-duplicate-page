@@ -4,8 +4,8 @@ Donate link: https://codecanyon.net/item/media-folders-manager-for-wordpress/217
 Tags: duplicate page, duplicate post, clone post, wordpress copy page, clone page
 Requires at least: 4.0
 Requires PHP: 5.3
-Tested up to: 6.5
-Stable tag: 1.4.1 
+Tested up to: 6.7.1
+Stable tag: 1.5
 License: GPL-2.0+
 License URI: http://www.gnu.org/licenses/gpl-2.0.txt
 
@@ -78,6 +78,9 @@ Yes, it's completely free of charge. WP Duplicate Page comes with all the featur
 
 
 == Changelog ==
+
+= Dec 4, 2024 - Version 1.5 =
+- Fixed: Not duplicate order data with HPOS WooCommerce
 
 = Mar 22, 2024 - Version 1.4.1 =
 - Fixed: Change text-domain

@@ -66,6 +66,124 @@ class CreateDuplicate {
 		return $newPostId;
 	}
 
+	public function createDuplicateOrderHPOS( $originalOrder ) {
+		if ( ! Utils::checkPostTypeDuplicate( 'shop_order' ) ) {
+			wp_die( esc_html__( 'Copy features for this post type are not enabled in setting page', 'wp-duplicate-page' ) );
+		}
+
+		$newDuplicateAuthor   = wp_get_current_user();
+		$newDuplicateAuthorId = $newDuplicateAuthor->ID;
+
+		// Disable all WooCommerce order status emails.
+		add_filter( 'woocommerce_email_enabled_new_order', '__return_false' );
+		add_filter( 'woocommerce_email_enabled_cancelled_order', '__return_false' );
+		add_filter( 'woocommerce_email_enabled_failed_order', '__return_false' );
+		add_filter( 'woocommerce_email_enabled_customer_on_hold_order', '__return_false' );
+		add_filter( 'woocommerce_email_enabled_customer_processing_order', '__return_false' );
+		add_filter( 'woocommerce_email_enabled_customer_completed_order', '__return_false' );
+		add_filter( 'woocommerce_email_enabled_customer_refunded_order', '__return_false' );
+		add_filter( 'woocommerce_email_enabled_customer_invoice', '__return_false' );
+
+		// Temporarily disable stock management.
+		add_filter( 'woocommerce_can_reduce_order_stock', '__return_false' );
+
+		$orderData = array(
+			'customer_id' => $newDuplicateAuthorId,
+			'status'      => 'pending',
+			'currency'    => $originalOrder->get_currency(),
+			'billing'     => $originalOrder->get_address( 'billing' ),
+			'shipping'    => $originalOrder->get_address( 'shipping' ),
+		);
+
+		$order = wc_create_order( $orderData );
+
+		foreach ( $originalOrder->get_meta_data() as $meta ) {
+			$order->update_meta_data( $meta->key, $meta->value );
+		}
+
+		foreach ( $originalOrder->get_items() as $item ) {
+			if ( $item->get_type() === 'line_item' ) {
+				$product = $item->get_product();
+				if ( $product ) {
+					$newItem = new \WC_Order_Item_Product();
+					$newItem->set_product_id( $item->get_product_id() );
+					$newItem->set_variation_id( $item->get_variation_id() );
+					$newItem->set_quantity( $item->get_quantity() );
+
+					// Handle pricing option.
+					$newItem->set_subtotal( (string) $item->get_subtotal() );
+					$newItem->set_total( (string) $item->get_total() );
+
+					// Copy item meta.
+					foreach ( $item->get_meta_data() as $meta ) {
+						$newItem->add_meta_data( $meta->key, $meta->value, true );
+					}
+
+					$order->add_item( $newItem );
+				}
+			} else {
+				$order->add_item( clone $item );
+			}
+		}
+
+		// Clone or set new shipping method based on the setting.
+		foreach ( $originalOrder->get_items( 'shipping' ) as $shippingItem ) {
+			$newShippingItem = new \WC_Order_Item_Shipping();
+			$newShippingItem->set_method_title( $shippingItem->get_method_title() );
+			$newShippingItem->set_method_id( $shippingItem->get_method_id() );
+			$newShippingItem->set_total( $shippingItem->get_total() );
+			$newShippingItem->set_taxes( $shippingItem->get_taxes() );
+
+			foreach ( $shippingItem->get_meta_data() as $meta ) {
+				$newShippingItem->add_meta_data( $meta->key, $meta->value, true );
+			}
+
+			$order->add_item( $newShippingItem );
+		}
+
+		// Coupon items.
+		foreach ( $originalOrder->get_items( 'coupon' ) as $couponItem ) {
+			$newCouponItem = new \WC_Order_Item_Coupon();
+			$newCouponItem->set_code( $couponItem->get_code() );
+			$newCouponItem->set_discount( $couponItem->get_discount() );
+			$order->add_item( $newCouponItem );
+		}
+
+		$order->calculate_totals();
+		$order->update_status( 'pending' );
+		$order->set_address( $orderData['billing'], 'billing' );
+		$order->set_address( $orderData['shipping'], 'shipping' );
+
+		// Set the order's date created.
+		$current_date = current_time( 'mysql' );
+		$order->set_date_created( $current_date );
+		$order->add_order_note( sprintf( 'This order was duplicated from order %d.', $originalOrder->get_id() ) );
+		$order->save();
+
+		// Re-enable stock management and adjust stock levels manually.
+		remove_filter( 'woocommerce_can_reduce_order_stock', '__return_false' );
+
+		foreach ( $order->get_items() as $item ) {
+			$product  = $item->get_product();
+			$quantity = $item->get_quantity();
+			if ( $product && $product->managing_stock() && $product->get_stock_quantity() > 0 ) {
+				wc_update_product_stock( $product, $quantity, 'decrease' );
+			}
+		}
+
+		// Enable all WooCommerce order status emails.
+		remove_filter( 'woocommerce_email_enabled_new_order', '__return_false' );
+		remove_filter( 'woocommerce_email_enabled_cancelled_order', '__return_false' );
+		remove_filter( 'woocommerce_email_enabled_failed_order', '__return_false' );
+		remove_filter( 'woocommerce_email_enabled_customer_on_hold_order', '__return_false' );
+		remove_filter( 'woocommerce_email_enabled_customer_processing_order', '__return_false' );
+		remove_filter( 'woocommerce_email_enabled_customer_completed_order', '__return_false' );
+		remove_filter( 'woocommerce_email_enabled_customer_refunded_order', '__return_false' );
+		remove_filter( 'woocommerce_email_enabled_customer_invoice', '__return_false' );
+
+		return $order->get_id();
+	}
+
 	// Run all function to copy details
 	private function duplicateDetails( $newPostId, $post ) {
 		$this->copyPostMeta( $newPostId, $post );

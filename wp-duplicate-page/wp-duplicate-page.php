@@ -3,7 +3,7 @@
  * Plugin Name: WP Duplicate Page
  * Plugin URI: https://ninjateam.org
  * Description: Duplicate Posts, Pages and Custom Post Types.
- * Version: 1.4.1
+ * Version: 1.5
  * Author: NinjaTeam
  * Author URI: https://ninjateam.org
  * Text Domain: wp-duplicate-page
@@ -16,10 +16,10 @@ namespace NjtDuplicate;
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'NJT_DUPLICATE_VERSION', '1.4.1' );
+define( 'NJT_DUPLICATE_VERSION', '1.5' );
 define( 'NJT_DUPLICATE_DOMAIN', 'wp-duplicate-page' );
 
-define( 'NJT_DUPLICATE_PLUGIN_DIR', dirname( __FILE__ ) );
+define( 'NJT_DUPLICATE_PLUGIN_DIR', __DIR__ );
 define( 'NJT_DUPLICATE_PLUGIN_NAME', plugin_basename( __FILE__ ) );
 define( 'NJT_DUPLICATE_PLUGIN_URL', plugins_url( '', __FILE__ ) );
 define( 'NJT_DUPLICATE_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
