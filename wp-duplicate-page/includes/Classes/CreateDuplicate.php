@@ -91,6 +91,7 @@ class CreateDuplicate {
 			'customer_id' => $newDuplicateAuthorId,
 			'status'      => 'pending',
 			'currency'    => $originalOrder->get_currency(),
+			'created_via'    => $originalOrder->get_created_via(),
 			'billing'     => $originalOrder->get_address( 'billing' ),
 			'shipping'    => $originalOrder->get_address( 'shipping' ),
 		);
@@ -316,6 +317,7 @@ class CreateDuplicate {
 			'shipping_state',
 			'shipping_postcode',
 			'shipping_country',
+			'created_via',
 		);
 		foreach ( $orderMetaFields as $metaField ) {
 			$setMetaFunction = "set_{$metaField}";

@@ -5,7 +5,7 @@ Tags: duplicate page, duplicate post, clone post, wordpress copy page, clone pag
 Requires at least: 4.0
 Requires PHP: 5.3
 Tested up to: 6.7.1
-Stable tag: 1.5
+Stable tag: 1.6
 License: GPL-2.0+
 License URI: http://www.gnu.org/licenses/gpl-2.0.txt
 
@@ -78,6 +78,9 @@ Yes, it's completely free of charge. WP Duplicate Page comes with all the featur
 
 
 == Changelog ==
+
+= Dec 30, 2024 - Version 1.6 =
+- Fixed: created_via metadata duplicated
 
 = Dec 4, 2024 - Version 1.5 =
 - Fixed: Not duplicate order data with HPOS WooCommerce
