@@ -1,11 +1,11 @@
  === WP Duplicate Page ===
 Contributors: ninjateam
-Donate link: https://codecanyon.net/item/media-folders-manager-for-wordpress/21715379
+Donate link: https://ninjateam.org/wp-duplicate-page/
 Tags: duplicate page, duplicate post, clone post, wordpress copy page, clone page
 Requires at least: 4.0
 Requires PHP: 5.3
-Tested up to: 6.7.1
-Stable tag: 1.6
+Tested up to: 6.9
+Stable tag: 1.8.1
 License: GPL-2.0+
 License URI: http://www.gnu.org/licenses/gpl-2.0.txt
 
@@ -78,6 +78,18 @@ Yes, it's completely free of charge. WP Duplicate Page comes with all the featur
 
 
 == Changelog ==
+
+= Jan 05, 2026 - Version 1.8.1 =
+- Improved: Security
+
+= Nov 13, 2025 - Version 1.8 =
+- Added: Duplicate button in Editor
+- Improved: Security
+- Improved: UI
+- Fixed: Small CSS issue
+
+= Oct 29, 2025 - Version 1.7 =
+- Added: Copy directly from post edit
 
 = Dec 30, 2024 - Version 1.6 =
 - Fixed: created_via metadata duplicated

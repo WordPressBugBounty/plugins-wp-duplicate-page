@@ -53,6 +53,9 @@ class ButtonDuplicate {
 
 	public function duplicateBulkHandle( $redirect, $action, $postIds ) {
 		if ( 'wp_duplicate_page_bulk_action' === $action ) {
+			if ( ! Utils::isCurrentUserAllowedToCopy() ) {
+				return $redirect;
+			}
 			// Get the original post
 			$counter = 0;
 			if ( is_array( $postIds ) ) {
@@ -70,6 +73,7 @@ class ButtonDuplicate {
 					}
 				}
 			}
+
 			return add_query_arg( 'bulk_cloned', $counter, $redirect );
 		}
 		return $redirect;
@@ -77,6 +81,9 @@ class ButtonDuplicate {
 
 	public function duplicateBulkHandleHPOS( $redirect, $action, $ids ) {
 		if ( 'wp_duplicate_page_bulk_action' === $action ) {
+			if ( ! Utils::isCurrentUserAllowedToCopy() ) {
+				return $redirect;
+			}
 			$counter = 0;
 			if ( is_array( $ids ) ) {
 				foreach ( $ids as $orderId ) {
@@ -90,6 +97,7 @@ class ButtonDuplicate {
 					}
 				}
 			}
+
 			return add_query_arg( 'bulk_cloned', $counter, $redirect );
 		}
 		return $redirect;
@@ -100,7 +108,7 @@ class ButtonDuplicate {
 			$duplicateTextLink             = get_option( 'njt_duplicate_text_link' ) == false || get_option( 'njt_duplicate_text_link' ) == '' ? 'Duplicate' : get_option( 'njt_duplicate_text_link' );
 			$actions['njt_duplicate_page'] = sprintf(
 				'<a href="%s" rel="bookmark" aria-label="%s">%s</a>',
-				$this->getDuplicateLink( $post->ID ),
+				Utils::getDuplicateLink( $post->ID ),
 				esc_attr( __( 'Duplicate', 'wp-duplicate-page' ) ),
 				/* translators: %s: Button Duplicate text. */
 				esc_html( sprintf( __( ' %s ', 'wp-duplicate-page' ), $duplicateTextLink ) )
@@ -108,31 +116,6 @@ class ButtonDuplicate {
 			return $actions;
 		}
 		return $actions;
-	}
-
-	public function getDuplicateLink( $postId = 0 ) {
-
-		if ( ! Utils::isCurrentUserAllowedToCopy() ) {
-			return;
-		}
-
-		if ( ! $post = get_post( $postId ) ) {
-			return;
-		}
-
-		if ( ! Utils::checkPostTypeDuplicate( $post->post_type ) ) {
-			return;
-		}
-
-		$action_name = 'njt_duplicate_page_save_as_new_post';
-		$action      = '?action=' . $action_name . '&amp;post=' . $post->ID;
-		$postType    = get_post_type_object( $post->post_type );
-
-		if ( ! $postType ) {
-			return;
-		}
-
-		return wp_nonce_url( admin_url( 'admin.php' . $action ), 'njt-duplicate-page_' . $post->ID );
 	}
 
 	public function duplicateNewPageAction() {
@@ -148,6 +131,8 @@ class ButtonDuplicate {
 		// Get the original post
 		$postId = ( isset( $_GET['post'] ) ? sanitize_text_field( $_GET['post'] ) : sanitize_text_field( $_POST['post'] ) );
 
+		$redirectToEdit = isset( $_GET['redirect'] ) ? sanitize_text_field( $_GET['redirect'] ) : '';
+
 		check_admin_referer( 'njt-duplicate-page_' . $postId );
 
 		$post = get_post( $postId );
@@ -157,7 +142,18 @@ class ButtonDuplicate {
 			$postType        = $post->post_type;
 			$createDuplicate = CreateDuplicate::getInstance();
 			$newPostId       = $createDuplicate->createDuplicate( $post );
-			$redirect        = wp_get_referer();
+
+			if ( ! empty( $redirectToEdit ) && $newPostId ) {
+				// Redirect to the edit page of the newly created duplicate
+				$editUrl = get_edit_post_link( $newPostId, 'raw' );
+				if ( $editUrl ) {
+					wp_safe_redirect( $editUrl );
+					exit;
+				}
+			} else {
+				$redirect = wp_get_referer();
+			}
+
 			if ( ! $redirect ||
 				strpos( $redirect, 'post.php' ) !== false ||
 				strpos( $redirect, 'post-new.php' ) !== false ) {

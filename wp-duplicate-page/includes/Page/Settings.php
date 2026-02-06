@@ -2,6 +2,7 @@
 namespace NjtDuplicate\Page;
 
 use NjtDuplicate\Classes\ButtonDuplicate;
+use NjtDuplicate\Classes\EditorDuplicate;
 
 defined( 'ABSPATH' ) || exit;
 /**
@@ -25,9 +26,13 @@ class Settings {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueueAdminScripts' ) );
 		add_filter( 'plugin_action_links_' . NJT_DUPLICATE_PLUGIN_NAME, array( $this, 'addActionLinks' ) );
 		add_action( 'wp_ajax_njt_duplicate_page_settings', array( $this, 'saveSettings' ) );
-		add_action( 'wp_ajax_nopriv_njt_duplicate_page_settings', array( $this, 'saveSettings' ) );
+		add_action( 'wp_ajax_njt_duplicate_page_track_review', array( $this, 'trackReview' ) );
 		// Add button link to post, page, post type
 		ButtonDuplicate::getInstance();
+		$duplicateInEditor = get_option( 'njt_duplicate_in_editor', true );
+		if ( $duplicateInEditor ) {
+			EditorDuplicate::getInstance();
+		}
 	}
 
 	public function settingsMenu() {
@@ -90,18 +95,34 @@ class Settings {
 		return $arrayOrString;
 	}
 
+	function trackReview() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+		if ( ! isset( $_POST['njtDuplicateNonce'] ) || ! wp_verify_nonce( $_POST['njtDuplicateNonce'], 'wp_rest' ) ) {
+			return;
+		}
+		update_option( 'njt_duplicate_reviewed', '1' );
+		wp_die();
+	}
+
 	function saveSettings() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
 		if ( ! isset( $_POST['njtDuplicateNonce'] ) || ! wp_verify_nonce( $_POST['njtDuplicateNonce'], 'wp_rest' ) ) {
 			return;
 		}
 
-		$roles     = isset( $_POST['njtDuplicateRoles'] ) ? $this->sanitizeTextOrArrayField( (array) $_POST['njtDuplicateRoles'] ) : array();
-		$postTypes = isset( $_POST['njtDuplicatePostTypes'] ) ? $this->sanitizeTextOrArrayField( (array) $_POST['njtDuplicatePostTypes'] ) : array();
-		$textLink  = isset( $_POST['njtDuplicateTextLink'] ) ? $this->sanitizeTextOrArrayField( $_POST['njtDuplicateTextLink'] ) : '';
+		$roles           = isset( $_POST['njtDuplicateRoles'] ) ? $this->sanitizeTextOrArrayField( (array) $_POST['njtDuplicateRoles'] ) : array();
+		$postTypes       = isset( $_POST['njtDuplicatePostTypes'] ) ? $this->sanitizeTextOrArrayField( (array) $_POST['njtDuplicatePostTypes'] ) : array();
+		$textLink        = isset( $_POST['njtDuplicateTextLink'] ) ? $this->sanitizeTextOrArrayField( $_POST['njtDuplicateTextLink'] ) : '';
+		$editorDuplicate = isset( $_POST['njtDuplicateInEditor'] ) ? $this->sanitizeTextOrArrayField( $_POST['njtDuplicateInEditor'] ) : '1';
 
 		update_option( 'njt_duplicate_roles', $roles );
 		update_option( 'njt_duplicate_post_types', $postTypes );
 		update_option( 'njt_duplicate_text_link', $textLink );
+		update_option( 'njt_duplicate_in_editor', $editorDuplicate );
 		global $wp_roles;
 		$roles              = $wp_roles->get_names();
 		$duplicateUserRoles = get_option( 'njt_duplicate_roles' );

@@ -91,7 +91,7 @@ class CreateDuplicate {
 			'customer_id' => $newDuplicateAuthorId,
 			'status'      => 'pending',
 			'currency'    => $originalOrder->get_currency(),
-			'created_via'    => $originalOrder->get_created_via(),
+			'created_via' => $originalOrder->get_created_via(),
 			'billing'     => $originalOrder->get_address( 'billing' ),
 			'shipping'    => $originalOrder->get_address( 'shipping' ),
 		);
@@ -99,6 +99,9 @@ class CreateDuplicate {
 		$order = wc_create_order( $orderData );
 
 		foreach ( $originalOrder->get_meta_data() as $meta ) {
+			if ( Utils::excludeMetaKey( $meta->key ) ) {
+				continue;
+			}
 			$order->update_meta_data( $meta->key, $meta->value );
 		}
 
