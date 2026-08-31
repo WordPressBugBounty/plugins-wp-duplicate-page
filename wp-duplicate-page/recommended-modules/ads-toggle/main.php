@@ -21,7 +21,7 @@ if ( ! class_exists( 'NjtAdsToggle' ) ) {
 	class NjtAdsToggle {
 
 		const NONCE     = 'njt_ads_toggle_nonce';
-		const ASSET_VER = '1.5.1'; // asset cache-buster; bump with register.php
+		const ASSET_VER = '1.5.6'; // asset cache-buster; bump with register.php — local checkbox-style edit, see ads-toggle.js/css
 
 		private static $instance = null;
 

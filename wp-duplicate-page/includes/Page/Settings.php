@@ -104,9 +104,17 @@ class Settings {
 				wp_json_encode(
 					array(
 						'consumerSlug' => NJT_DUPLICATE_DOMAIN,
-						'title'        => __( 'Show Recommended Plugins', 'wp-duplicate-page' ),
+						// No 'title' — html-settings.php now renders "Show Suggestions" as a real
+						// .njt-duplicate-base-control-label (left column, same style as every other
+						// row) instead of relying on the widget's own internal title text.
 						'description'  => __( 'Enable this to see handy plugin recommendations and occasional offers. Disable anytime to turn all of them off.', 'wp-duplicate-page' ),
 						'checked'      => njt_ads_toggle_consumer_is_enabled( NJT_DUPLICATE_DOMAIN ),
+						// 'checkbox' is a LOCAL edit to recommended-modules/ads-toggle (gitignored, synced
+						// from the shared cross-sell-manager repo) — not upstream yet. It will silently
+						// revert to the default "switch" style next time bin/pull-modules.php re-syncs.
+						// The #njt-duplicate-ads-toggle CSS override in admin-setting.css renders the same
+						// checkbox look independent of this option, so the UI stays correct either way.
+						'style'        => 'checkbox',
 					)
 				)
 			)

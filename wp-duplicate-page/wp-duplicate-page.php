@@ -3,7 +3,7 @@
  * Plugin Name: WP Duplicate Page
  * Plugin URI: https://ninjateam.org
  * Description: Duplicate Posts, Pages and Custom Post Types.
- * Version: 1.8.5
+ * Version: 1.8.6
  * Author: NinjaTeam
  * Author URI: https://ninjateam.org
  * Text Domain: wp-duplicate-page
@@ -16,7 +16,7 @@ namespace NjtDuplicate;
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'NJT_DUPLICATE_VERSION', '1.8.5' );
+define( 'NJT_DUPLICATE_VERSION', '1.8.6' );
 define( 'NJT_DUPLICATE_DOMAIN', 'wp-duplicate-page' );
 
 define( 'NJT_DUPLICATE_PLUGIN_DIR', __DIR__ );
@@ -55,9 +55,10 @@ if ( file_exists( __DIR__ . '/recommended-modules/loader.php' ) ) {
 // single toggle rendered on the settings page (Page\Settings) controls all of them together. Must
 // run after the loader.php require above (Registry class must already exist), and before
 // plugins_loaded:0 (Registry::load_winners()) so the registration isn't dropped as "late".
-if ( class_exists( '\YayRecommendedModules\Registry' ) ) {
+if ( class_exists( '\YayRecommendedModules\Registry' ) && method_exists( '\YayRecommendedModules\Registry', 'register_ads_consumer' ) ) {
 	foreach (
 		array(
+			'filebird-dashboard-widget',
 			'filebird-plugins-page-notification',
 			'filebird-sidebar-popup',
 			'yaymail-wc-settings-banner',
