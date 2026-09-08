@@ -3,9 +3,14 @@
  * Plugin Name: WP Duplicate Page
  * Plugin URI: https://ninjateam.org
  * Description: Duplicate Posts, Pages and Custom Post Types.
- * Version: 1.8.6
+ * Version: 1.8.7
  * Author: NinjaTeam
  * Author URI: https://ninjateam.org
+ * License: GPL v2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.
+ * Requires at least: 4.7
+ * Tested up to: 7.1
+ * Requires PHP: 5.4
  * Text Domain: wp-duplicate-page
  * Domain Path: /i18n/languages/
  *
@@ -16,7 +21,7 @@ namespace NjtDuplicate;
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'NJT_DUPLICATE_VERSION', '1.8.6' );
+define( 'NJT_DUPLICATE_VERSION', '1.8.7' );
 define( 'NJT_DUPLICATE_DOMAIN', 'wp-duplicate-page' );
 
 define( 'NJT_DUPLICATE_PLUGIN_DIR', __DIR__ );
@@ -58,7 +63,6 @@ if ( file_exists( __DIR__ . '/recommended-modules/loader.php' ) ) {
 if ( class_exists( '\YayRecommendedModules\Registry' ) && method_exists( '\YayRecommendedModules\Registry', 'register_ads_consumer' ) ) {
 	foreach (
 		array(
-			'filebird-dashboard-widget',
 			'filebird-plugins-page-notification',
 			'filebird-sidebar-popup',
 			'yaymail-wc-settings-banner',

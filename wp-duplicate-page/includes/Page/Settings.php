@@ -62,7 +62,7 @@ class Settings {
 				/* translators: 1: Plugin Title, 2: Link to review */
 				__( 'Enjoyed %1$s? Please leave us a %2$s rating. We really appreciate your support!', 'wp-duplicate-page' ),
 				'<strong>' . esc_html__( 'WP Duplicate Page', 'wp-duplicate-page' ) . '</strong>',
-				'<a href="https://wordpress.org/support/plugin/wp-duplicate-page/reviews/?filter=5/#new-post/" target="_blank">&#9733;&#9733;&#9733;&#9733;&#9733;</a>'
+				'<a href="https://wordpress.org/support/plugin/wp-duplicate-page/reviews/" target="_blank">&#9733;&#9733;&#9733;&#9733;&#9733;</a>'
 			);
 			wp_enqueue_style( $scriptId, NJT_DUPLICATE_PLUGIN_URL . '/assets/css/admin-setting.css', array(), NJT_DUPLICATE_VERSION );
 			wp_enqueue_script( $scriptId, NJT_DUPLICATE_PLUGIN_URL . '/assets/js/admin-setting.js', array( 'jquery' ), NJT_DUPLICATE_VERSION, true );
@@ -147,7 +147,7 @@ class Settings {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
-		if ( ! isset( $_POST['njtDuplicateNonce'] ) || ! wp_verify_nonce( $_POST['njtDuplicateNonce'], 'wp_rest' ) ) {
+		if ( ! isset( $_POST['njtDuplicateNonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['njtDuplicateNonce'] ) ), 'wp_rest' ) ) {
 			return;
 		}
 		update_option( 'njt_duplicate_reviewed', '1' );
@@ -158,7 +158,7 @@ class Settings {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
-		if ( ! isset( $_POST['njtDuplicateNonce'] ) || ! wp_verify_nonce( $_POST['njtDuplicateNonce'], 'wp_rest' ) ) {
+		if ( ! isset( $_POST['njtDuplicateNonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['njtDuplicateNonce'] ) ), 'wp_rest' ) ) {
 			return;
 		}
 

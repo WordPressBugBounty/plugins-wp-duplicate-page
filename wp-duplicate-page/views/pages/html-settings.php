@@ -6,7 +6,7 @@ use NjtDuplicate\Helper\Utils;
 	<div class="njt-duplicate-top-header">
 		<div class="njt-duplicate-header-left">
 		<div class="njt-duplicate-header-logo">
-			<img src="<?php echo NJT_DUPLICATE_PLUGIN_URL; ?>/assets/images/wp-duplicate-page.png" alt="WP Duplicate Page">
+			<img src="<?php echo esc_url( NJT_DUPLICATE_PLUGIN_URL ); ?>/assets/images/wp-duplicate-page.png" alt="WP Duplicate Page">
 		</div>
 		<h1 class="njt-duplicate-header-title">WP Duplicate Page</h1>
 		<a class="njt-duplicate-btn njt-duplicate-btn-xs" href="https://ninjateam.org" target="_blank" rel="noopener noreferrer">by NinjaTeam</a>
@@ -202,10 +202,10 @@ use NjtDuplicate\Helper\Utils;
 			$reviewed     = get_option( 'njt_duplicate_reviewed', '0' ) === '1';
 			$reviewedText = 'Thank you for using WP Duplicate Page from <a href="https://ninjateam.org/" target="_blank">NinjaTeam</a>';
 			if ( ! $reviewed ) {
-				echo '<span class="njt-duplicate-footer-not-reviewed-text">We need your support to keep updating and improving the plugin. Please, <a class="njt-duplicate-footer-review-text-link" target="_blank" href="https://wordpress.org/support/plugin/wp-duplicate-page/reviews/?filter=5/#new-post/">help us by leaving a good review</a> :) Thanks!</span>';
-				printf( '<span class="njt-duplicate-footer-reviewed-text" style="display: none;">%s</span>', $reviewedText );
+				echo wp_kses_post( '<span class="njt-duplicate-footer-not-reviewed-text">We need your support to keep updating and improving the plugin. Please, <a class="njt-duplicate-footer-review-text-link" target="_blank" href="https://wordpress.org/support/plugin/wp-duplicate-page/reviews/">help us by leaving a good review</a> :) Thanks!</span>' );
+				printf( '<span class="njt-duplicate-footer-reviewed-text" style="display: none;">%s</span>', wp_kses_post( $reviewedText ) );
 			} else {
-				printf( '<span class="njt-duplicate-footer-reviewed-text">%s</span>', $reviewedText );
+				printf( '<span class="njt-duplicate-footer-reviewed-text">%s</span>', wp_kses_post( $reviewedText ) );
 			}
 			?>
 		</div>
